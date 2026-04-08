@@ -1,5 +1,5 @@
 import redis from "../../config/redis";
-import type { ICacheProvider } from "../../core/providers/cache-service";
+import type { ICacheProvider } from "./cache-provider.interface";
 
 export class RedisCacheProvider implements ICacheProvider {
 	async get<T = unknown>(key: string): Promise<T | null> {
@@ -18,7 +18,8 @@ export class RedisCacheProvider implements ICacheProvider {
 	async invalidateByPattern(pattern: string): Promise<void> {
 		const keys = await redis.keys(pattern);
 		if (keys.length > 0) {
-			await redis.del(...keys);
+			const _result = await redis.del(...keys);
+			return;
 		}
 	}
 }

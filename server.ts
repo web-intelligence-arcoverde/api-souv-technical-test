@@ -1,15 +1,10 @@
-import app from './src/app';
-import { connectDB } from './src/config/database';
-import dotenv from 'dotenv';
+import dotenv from "dotenv";
+import app from "./src/app";
 
 dotenv.config();
 
 const PORT = process.env.PORT || 3000;
 
-console.log(process.env.PG_PORT);
-
-connectDB().then(() => {
-  app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-  });
+app.listen(PORT, () => {
+	console.log(`Server is running on port ${PORT}`);
 });

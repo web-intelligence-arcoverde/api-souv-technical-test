@@ -1,45 +1,43 @@
 {
-  "name": "api-souv-technical-test",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "dev": "ts-node-dev --respawn --transpile-only server.ts",
-    "build": "tsc",
-    "start": "node dist/server.js",
-    "lint": "npx @biomejs/biome check src",
-    "format": "npx @biomejs/biome format --write src",
-    "test": "jest",
-    "prepare": "husky"
-  },
-  "keywords": [],
-  "author": "Lucas Paes",
-  "license": "ISC",
-  "devDependencies": {
-    "@biomejs/biome": "^2.4.10",
-    "@commitlint/cli": "^20.5.0",
-    "@commitlint/config-conventional": "^20.5.0",
-    "@types/cors": "^2.8.17",
-    "@types/express": "^5.0.1",
-    "@types/jest": "^30.0.0",
-    "@types/pg": "^8.11.13",
-    "@types/swagger-ui-express": "^4.1.8",
-    "husky": "^9.1.7",
-    "jest": "^30.3.0",
-    "ts-jest": "^29.4.9",
-    "ts-node-dev": "^2.0.0",
-    "typescript": "^5.8.3"
-  },
-  "dependencies": {
-    "cors": "^2.8.5",
-    "dotenv": "^16.5.0",
-    "express": "^5.1.0",
-    "express-rate-limit": "^8.3.2",
-    "firebase": "^12.11.0",
-    "ioredis": "^5.6.1",
-    "pg": "^8.15.1",
-    "rate-limiter-flexible": "^7.0.0",
-    "swagger-ui-express": "^5.0.1",
-    "zod": "^3.24.3"
-  }
+	"name": "api-souv-technical-test",
+	"version": "1.0.0",
+	"description": "",
+	"main": "index.js",
+	"scripts": {
+		"dev": "ts-node-dev --respawn --transpile-only server.ts",
+		"build": "tsc",
+		"start": "node dist/server.js",
+		"lint": "npx @biomejs/biome check src",
+		"format": "npx @biomejs/biome format --write src",
+		"test": "jest",
+		"prepare": "husky"
+	},
+	"keywords": [],
+	"author": "Lucas Paes",
+	"license": "ISC",
+	"devDependencies": {
+		"@biomejs/biome": "^2.4.10",
+		"@commitlint/cli": "^20.5.0",
+		"@commitlint/config-conventional": "^20.5.0",
+		"@types/cors": "^2.8.17",
+		"@types/express": "^5.0.1",
+		"@types/jest": "^30.0.0",
+		"@types/swagger-ui-express": "^4.1.8",
+		"husky": "^9.1.7",
+		"jest": "^30.3.0",
+		"ts-jest": "^29.4.9",
+		"ts-node-dev": "^2.0.0",
+		"typescript": "^5.8.3"
+	},
+	"dependencies": {
+		"cors": "^2.8.5",
+		"dotenv": "^16.5.0",
+		"express": "^5.1.0",
+		"express-rate-limit": "^8.3.2",
+		"firebase": "^12.11.0",
+		"ioredis": "^5.6.1",
+		"rate-limiter-flexible": "^7.0.0",
+		"swagger-ui-express": "^5.0.1",
+		"zod": "^3.24.3"
+	}
 }

@@ -2,9 +2,9 @@ import type { NextFunction, Request, Response } from "express";
 
 const errorHandler = (
 	err: Error,
-	req: Request,
+	_req: Request,
 	res: Response,
-	next: NextFunction,
+	_next: NextFunction,
 ): void => {
 	console.error(err);
 	res.status(500).json({ error: "Internal Server Error" });
