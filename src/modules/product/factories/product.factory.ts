@@ -9,34 +9,33 @@ import { DeleteProductUseCase } from "../usecases/delete-product.usecase";
 import { ListProductsUseCase } from "../usecases/list-product.usecase";
 import { ToggleChangeProductCheckedUseCase } from "../usecases/toggle-change-product-checked.usecase";
 
-export class ProductControllerFactory {
-	private static getDependencies() {
-		const repository = new ProductRepository();
-		const cache = new RedisCacheProvider();
-		return { repository, cache };
-	}
+const getDependencies = () => {
+	const repository = new ProductRepository();
+	const cache = new RedisCacheProvider();
+	return { repository, cache };
+};
 
-	static makeList(): ListProductController {
-		const { repository, cache } = ProductControllerFactory.getDependencies();
-		const useCase = new ListProductsUseCase(repository, cache);
-		return new ListProductController(useCase);
-	}
+export const makeListProductController = (): ListProductController => {
+	const { repository, cache } = getDependencies();
+	const useCase = new ListProductsUseCase(repository, cache);
+	return new ListProductController(useCase);
+};
 
-	static makeCreate(): CreateProductController {
-		const { repository } = ProductControllerFactory.getDependencies();
-		const useCase = new CreateProductUseCase(repository);
-		return new CreateProductController(useCase);
-	}
+export const makeCreateProductController = (): CreateProductController => {
+	const { repository } = getDependencies();
+	const useCase = new CreateProductUseCase(repository);
+	return new CreateProductController(useCase);
+};
 
-	static makeToggleChecked(): ToggleCheckedProductController {
-		const { repository, cache } = ProductControllerFactory.getDependencies();
+export const makeToggleCheckedProductController =
+	(): ToggleCheckedProductController => {
+		const { repository, cache } = getDependencies();
 		const useCase = new ToggleChangeProductCheckedUseCase(repository, cache);
 		return new ToggleCheckedProductController(useCase);
-	}
+	};
 
-	static makeDelete(): DeleteProductController {
-		const { repository, cache } = ProductControllerFactory.getDependencies();
-		const useCase = new DeleteProductUseCase(repository, cache);
-		return new DeleteProductController(useCase);
-	}
-}
+export const makeDeleteProductController = (): DeleteProductController => {
+	const { repository, cache } = getDependencies();
+	const useCase = new DeleteProductUseCase(repository, cache);
+	return new DeleteProductController(useCase);
+};

@@ -1,13 +1,3 @@
-import {
-	addDoc,
-	collection,
-	deleteDoc,
-	doc,
-	getDoc,
-	getDocs,
-	query,
-	updateDoc,
-} from "firebase/firestore";
 import { db } from "../../../infra/firestore";
 import type { IPagination } from "../entities/pagination";
 import type { IProduct } from "../entities/product";
@@ -15,7 +5,7 @@ import type { IProductRepository } from "./product-repository.interface";
 
 export class ProductRepository implements IProductRepository {
 	private getCollection(listId: string) {
-		return collection(db, "lists", listId, "items");
+		return db.collection("lists").doc(listId).collection("items");
 	}
 
 	async findAll(
@@ -23,12 +13,12 @@ export class ProductRepository implements IProductRepository {
 		limit: number,
 		listId: string,
 	): Promise<IPagination> {
-		const q = query(this.getCollection(listId));
-		const querySnapshot = await getDocs(q);
+		const querySnapshot = await this.getCollection(listId).get();
 		const allItems: IProduct[] = [];
-		querySnapshot.forEach((doc) => {
+
+		for (const doc of querySnapshot.docs) {
 			allItems.push({ id: doc.id, ...doc.data() } as IProduct);
-		});
+		}
 
 		const total = allItems.length;
 		const start = (page - 1) * limit;
@@ -44,14 +34,13 @@ export class ProductRepository implements IProductRepository {
 	}
 
 	async create(data: IProduct): Promise<IProduct> {
-		const docRef = await addDoc(this.getCollection(data.listId), data);
+		const docRef = await this.getCollection(data.listId).add(data);
 		return { ...data, id: docRef.id };
 	}
 
 	async findById(id: string, listId: string): Promise<IProduct | null> {
-		const docRef = doc(db, "lists", listId, "items", id);
-		const docSnap = await getDoc(docRef);
-		if (docSnap.exists()) {
+		const docSnap = await this.getCollection(listId).doc(id).get();
+		if (docSnap.exists) {
 			return { id: docSnap.id, ...docSnap.data() } as IProduct;
 		}
 		return null;
@@ -62,12 +51,10 @@ export class ProductRepository implements IProductRepository {
 		listId: string,
 		checked: boolean,
 	): Promise<void> {
-		const docRef = doc(db, "lists", listId, "items", id);
-		await updateDoc(docRef, { checked });
+		await this.getCollection(listId).doc(id).update({ checked });
 	}
 
 	async delete(id: string, listId: string): Promise<void> {
-		const docRef = doc(db, "lists", listId, "items", id);
-		await deleteDoc(docRef);
+		await this.getCollection(listId).doc(id).delete();
 	}
 }

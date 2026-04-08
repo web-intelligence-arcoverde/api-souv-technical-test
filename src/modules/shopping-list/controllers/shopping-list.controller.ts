@@ -1,6 +1,8 @@
 import type { RequestHandler } from "express";
+import { z } from "zod";
 import type { CreateListUseCase } from "../usecases/create-list.usecase";
 import type { ListListsUseCase } from "../usecases/list-lists.usecase";
+import { createListSchema } from "../validations/create-list.schema";
 
 export class ShoppingListController {
 	constructor(
@@ -10,8 +12,8 @@ export class ShoppingListController {
 
 	create: RequestHandler = async (req, res, next) => {
 		try {
-			const { name, userId } = req.body;
-			const result = await this.createListUseCase.execute({ name, userId });
+			const data = createListSchema.parse(req.body);
+			const result = await this.createListUseCase.execute(data);
 			res.status(201).json(result);
 		} catch (error) {
 			next(error);
@@ -21,11 +23,11 @@ export class ShoppingListController {
 	list: RequestHandler = async (req, res, next) => {
 		try {
 			const { userId } = req.query;
-			if (!userId) {
-				res.status(400).json({ error: "userId is required" });
-				return;
-			}
-			const result = await this.listListsUseCase.execute(userId as string);
+			const validatedUserId = z
+				.string()
+				.min(1, "userId is required")
+				.parse(userId);
+			const result = await this.listListsUseCase.execute(validatedUserId);
 			res.status(200).json(result);
 		} catch (error) {
 			next(error);

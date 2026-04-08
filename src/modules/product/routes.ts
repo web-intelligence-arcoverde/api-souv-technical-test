@@ -1,13 +1,17 @@
 import express from "express";
-import { ProductControllerFactory } from "./factories/product.factory";
+import {
+	makeCreateProductController,
+	makeDeleteProductController,
+	makeListProductController,
+	makeToggleCheckedProductController,
+} from "./factories/product.factory";
 
 const router = express.Router();
 
-const listProductController = ProductControllerFactory.makeList();
-const createProductController = ProductControllerFactory.makeCreate();
-const toggleCheckedProductController =
-	ProductControllerFactory.makeToggleChecked();
-const deleteProductController = ProductControllerFactory.makeDelete();
+const listProductController = makeListProductController();
+const createProductController = makeCreateProductController();
+const toggleCheckedProductController = makeToggleCheckedProductController();
+const deleteProductController = makeDeleteProductController();
 
 router.delete("/:id", deleteProductController.handle);
 router.get("/", listProductController.handle);

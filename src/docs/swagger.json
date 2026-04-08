@@ -1,9 +1,9 @@
 {
 	"openapi": "3.0.0",
 	"info": {
-		"title": "API de Lista de Produtos",
-		"version": "1.0.0",
-		"description": "Documentação da API para gerenciar uma lista de produtos."
+		"title": "API de Lista de Compras Souv",
+		"version": "2.2.0",
+		"description": "API para gerenciamento de listas de compras e produtos, com suporte a múltiplos usuários via Firebase Admin SDK."
 	},
 	"servers": [
 		{
@@ -12,35 +12,200 @@
 		}
 	],
 	"paths": {
-		"/product": {
+		"/auth/register": {
+			"post": {
+				"tags": ["Autenticação"],
+				"summary": "Cadastrar novo usuário",
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": { "$ref": "#/components/schemas/RegisterRequest" }
+						}
+					}
+				},
+				"responses": {
+					"201": {
+						"description": "Usuário registrado com sucesso",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/AuthResponse" }
+							}
+						}
+					}
+				}
+			}
+		},
+		"/auth/login": {
+			"post": {
+				"tags": ["Autenticação"],
+				"summary": "Realizar login",
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": { "$ref": "#/components/schemas/LoginRequest" }
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Login realizado com sucesso",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/AuthResponse" }
+							}
+						}
+					}
+				}
+			}
+		},
+		"/auth/users": {
 			"get": {
-				"summary": "Listar produtos",
-				"description": "Retorna uma lista de produtos com paginação.",
+				"tags": ["Autenticação"],
+				"summary": "Listar todos os usuários cadastrados",
+				"responses": {
+					"200": {
+						"description": "Lista de usuários",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "array",
+									"items": {
+										"type": "object",
+										"properties": {
+											"uid": { "type": "string" },
+											"name": { "type": "string" },
+											"email": { "type": "string" }
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/auth/account/{uid}": {
+			"patch": {
+				"tags": ["Autenticação"],
+				"summary": "Atualizar dados da conta",
 				"parameters": [
 					{
-						"name": "page",
-						"in": "query",
-						"description": "Número da página",
-						"required": false,
-						"schema": {
-							"type": "integer",
-							"default": 1
+						"name": "uid",
+						"in": "path",
+						"required": true,
+						"schema": { "type": "string" }
+					}
+				],
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"name": { "type": "string" },
+									"email": { "type": "string", "format": "email" }
+								}
+							}
 						}
-					},
+					}
+				},
+				"responses": {
+					"200": { "description": "Conta atualizada com sucesso" }
+				}
+			},
+			"delete": {
+				"tags": ["Autenticação"],
+				"summary": "Excluir conta permanentemente",
+				"description": "Exclui a conta do usuário do Firebase Auth e todos os seus dados associados (listas e produtos).",
+				"parameters": [
 					{
-						"name": "limit",
+						"name": "uid",
+						"in": "path",
+						"required": true,
+						"schema": { "type": "string" }
+					}
+				],
+				"responses": {
+					"200": { "description": "Conta excluída com sucesso" }
+				}
+			}
+		},
+		"/list": {
+			"get": {
+				"tags": ["Listas"],
+				"summary": "Listar listas de compras do usuário",
+				"parameters": [
+					{
+						"name": "userId",
 						"in": "query",
-						"description": "Quantidade de itens por página",
-						"required": false,
-						"schema": {
-							"type": "integer",
-							"default": 10
-						}
+						"required": true,
+						"schema": { "type": "string" }
 					}
 				],
 				"responses": {
 					"200": {
-						"description": "Lista de produtos retornada com sucesso.",
+						"description": "Sucesso",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "array",
+									"items": { "$ref": "#/components/schemas/ShoppingList" }
+								}
+							}
+						}
+					}
+				}
+			},
+			"post": {
+				"tags": ["Listas"],
+				"summary": "Criar nova lista",
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": { "$ref": "#/components/schemas/CreateListRequest" }
+						}
+					}
+				},
+				"responses": {
+					"201": {
+						"description": "Lista criada com sucesso",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ShoppingList" }
+							}
+						}
+					}
+				}
+			}
+		},
+		"/product": {
+			"get": {
+				"tags": ["Produtos"],
+				"summary": "Listar produtos de uma lista",
+				"parameters": [
+					{
+						"name": "listId",
+						"in": "query",
+						"required": true,
+						"schema": { "type": "string" }
+					},
+					{
+						"name": "page",
+						"in": "query",
+						"schema": { "type": "integer", "default": 1 }
+					},
+					{
+						"name": "limit",
+						"in": "query",
+						"schema": { "type": "integer", "default": 10 }
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Sucesso",
 						"content": {
 							"application/json": {
 								"schema": {
@@ -50,17 +215,7 @@
 										"limit": { "type": "integer" },
 										"data": {
 											"type": "array",
-											"items": {
-												"type": "object",
-												"properties": {
-													"id": { "type": "integer" },
-													"category": { "type": "string" },
-													"name": { "type": "string" },
-													"quantity": { "type": "integer" },
-													"unit": { "type": "string" },
-													"checked": { "type": "boolean" }
-												}
-											}
+											"items": { "$ref": "#/components/schemas/Product" }
 										}
 									}
 								}
@@ -70,46 +225,44 @@
 				}
 			},
 			"post": {
-				"summary": "Criar produto",
-				"description": "Cria um novo produto.",
+				"tags": ["Produtos"],
+				"summary": "Adicionar produto à lista",
 				"requestBody": {
 					"required": true,
 					"content": {
 						"application/json": {
-							"schema": {
-								"type": "object",
-								"properties": {
-									"category": { "type": "string" },
-									"name": { "type": "string" },
-									"quantity": { "type": "integer" },
-									"unit": { "type": "string" },
-									"checked": { "type": "boolean" }
-								},
-								"required": ["category", "name", "quantity", "unit"]
-							}
+							"schema": { "$ref": "#/components/schemas/CreateProductRequest" }
 						}
 					}
 				},
 				"responses": {
 					"201": {
-						"description": "Produto criado com sucesso."
+						"description": "Produto adicionado",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/Product" }
+							}
+						}
 					}
 				}
 			}
 		},
-		"/product/{id}/checked": {
+		"/product/{id}/toggle-checked": {
 			"patch": {
-				"summary": "Atualizar o campo 'checked' de um produto",
-				"description": "Atualiza o campo 'checked' de um produto específico.",
+				"tags": ["Produtos"],
+				"summary": "Alternar status de marcando do produto",
 				"parameters": [
 					{
 						"name": "id",
 						"in": "path",
-						"description": "ID do produto",
 						"required": true,
-						"schema": {
-							"type": "integer"
-						}
+						"schema": { "type": "string" }
+					},
+					{
+						"name": "listId",
+						"in": "query",
+						"required": true,
+						"schema": { "type": "string" }
 					}
 				],
 				"requestBody": {
@@ -127,53 +280,102 @@
 					}
 				},
 				"responses": {
-					"200": {
-						"description": "Produto atualizado com sucesso."
-					},
-					"404": {
-						"description": "Produto não encontrado."
-					}
+					"200": { "description": "Atualizado com sucesso" }
 				}
 			}
 		},
 		"/product/{id}": {
 			"delete": {
-				"summary": "Excluir produto",
-				"description": "Exclui um produto específico pelo ID.",
+				"tags": ["Produtos"],
+				"summary": "Remover produto",
 				"parameters": [
 					{
 						"name": "id",
 						"in": "path",
-						"description": "ID do produto a ser excluído",
 						"required": true,
-						"schema": {
-							"type": "integer"
-						}
+						"schema": { "type": "string" }
+					},
+					{
+						"name": "listId",
+						"in": "query",
+						"required": true,
+						"schema": { "type": "string" }
 					}
 				],
 				"responses": {
-					"200": {
-						"description": "Produto excluído com sucesso.",
-						"content": {
-							"application/json": {
-								"schema": {
-									"type": "object",
-									"properties": {
-										"id": { "type": "integer" },
-										"category": { "type": "string" },
-										"name": { "type": "string" },
-										"quantity": { "type": "integer" },
-										"unit": { "type": "string" },
-										"checked": { "type": "boolean" }
-									}
-								}
-							}
-						}
-					},
-					"404": {
-						"description": "Produto não encontrado."
-					}
+					"200": { "description": "Removido com sucesso" }
 				}
+			}
+		}
+	},
+	"components": {
+		"schemas": {
+			"LoginRequest": {
+				"type": "object",
+				"properties": {
+					"email": { "type": "string", "format": "email" },
+					"password": { "type": "string", "minLength": 6 }
+				},
+				"required": ["email", "password"]
+			},
+			"RegisterRequest": {
+				"type": "object",
+				"properties": {
+					"name": { "type": "string" },
+					"email": { "type": "string", "format": "email" },
+					"password": { "type": "string", "minLength": 6 }
+				},
+				"required": ["name", "email", "password"]
+			},
+			"AuthResponse": {
+				"type": "object",
+				"properties": {
+					"uid": { "type": "string" },
+					"email": { "type": "string" },
+					"name": { "type": "string" },
+					"token": { "type": "string" }
+				}
+			},
+			"ShoppingList": {
+				"type": "object",
+				"properties": {
+					"id": { "type": "string" },
+					"name": { "type": "string" },
+					"userId": { "type": "string" },
+					"createdAt": { "type": "string", "format": "date-time" }
+				}
+			},
+			"CreateListRequest": {
+				"type": "object",
+				"properties": {
+					"name": { "type": "string" },
+					"userId": { "type": "string" }
+				},
+				"required": ["name", "userId"]
+			},
+			"Product": {
+				"type": "object",
+				"properties": {
+					"id": { "type": "string" },
+					"listId": { "type": "string" },
+					"name": { "type": "string" },
+					"category": { "type": "string" },
+					"quantity": { "type": "integer" },
+					"unit": { "type": "string" },
+					"checked": { "type": "boolean" }
+				}
+			},
+			"CreateProductRequest": {
+				"type": "object",
+				"properties": {
+					"listId": { "type": "string" },
+					"name": { "type": "string" },
+					"category": { "type": "string" },
+					"quantity": { "type": "integer" },
+					"unit": { "type": "string" },
+					"checked": { "type": "boolean" }
+				},
+				"required": ["listId", "name", "category", "quantity", "unit"]
 			}
 		}
 	}

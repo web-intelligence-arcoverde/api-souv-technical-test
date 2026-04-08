@@ -1,8 +1,8 @@
 import { Router } from "express";
-import { ShoppingListControllerFactory } from "./factories/shopping-list.factory";
+import { makeShoppingListController } from "./factories/shopping-list.factory";
 
 const router = Router();
-const listController = ShoppingListControllerFactory.make();
+const listController = makeShoppingListController();
 
 router.post("/", listController.create);
 router.get("/", listController.list);

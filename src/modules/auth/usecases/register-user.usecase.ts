@@ -11,19 +11,8 @@ export class RegisterUserUseCase {
 
 	async execute(data: IRegisterData) {
 		const { email, password, name } = data;
-		const userCredential = await this.authRepository.register(
-			email,
-			password,
-			name,
-		);
-		const user = userCredential.user;
-		const token = await user.getIdToken();
+		const authUser = await this.authRepository.register(email, password, name);
 
-		return {
-			uid: user.uid,
-			email: user.email,
-			name: name,
-			token: token,
-		};
+		return authUser;
 	}
 }

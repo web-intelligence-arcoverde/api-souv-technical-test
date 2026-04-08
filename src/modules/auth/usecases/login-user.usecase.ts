@@ -10,14 +10,8 @@ export class LoginUserUseCase {
 
 	async execute(data: ILoginData) {
 		const { email, password } = data;
-		const userCredential = await this.authRepository.login(email, password);
-		const user = userCredential.user;
-		const token = await user.getIdToken();
+		const authUser = await this.authRepository.login(email, password);
 
-		return {
-			uid: user.uid,
-			email: user.email,
-			token: token,
-		};
+		return authUser;
 	}
 }

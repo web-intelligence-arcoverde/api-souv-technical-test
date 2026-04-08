@@ -1,22 +1,17 @@
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
+import * as admin from "firebase-admin";
 
-// Your web app's Firebase configuration
-const firebaseConfig = {
+const serviceAccount = require("../../shopping-list-5758e-firebase-adminsdk-fbsvc-334e1a2a4a.json");
+
+// apiKey is needed for the Auth REST API (login)
+export const firebaseConfig = {
 	apiKey: "AIzaSyDOlt6FIvBkbxSu5s9199fIiiIgUlq6ObQ",
-	authDomain: "shopping-list-5758e.firebaseapp.com",
-	projectId: "shopping-list-5758e",
-	storageBucket: "shopping-list-5758e.firebasestorage.app",
-	messagingSenderId: "880124493488",
-	appId: "1:880124493488:web:d0023b09f8026b533e0575",
-	measurementId: "G-BRRE2N5ZHK",
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
+if (!admin.apps.length) {
+	admin.initializeApp({
+		credential: admin.credential.cert(serviceAccount),
+	});
+}
 
-// Initialize Services
-export const auth = getAuth(app);
-export const db = getFirestore(app);
+export const auth = admin.auth();
+export const db = admin.firestore();
