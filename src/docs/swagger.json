@@ -2,8 +2,8 @@
 	"openapi": "3.0.0",
 	"info": {
 		"title": "API de Lista de Compras Souv",
-		"version": "2.2.0",
-		"description": "API para gerenciamento de listas de compras e produtos, com suporte a múltiplos usuários via Firebase Admin SDK."
+		"version": "2.3.0",
+		"description": "API para gerenciamento de listas de compras e produtos, com suporte a múltiplos usuários via Firebase Admin SDK e renovação de tokens (Refresh Token)."
 	},
 	"servers": [
 		{
@@ -54,6 +54,37 @@
 						"content": {
 							"application/json": {
 								"schema": { "$ref": "#/components/schemas/AuthResponse" }
+							}
+						}
+					}
+				}
+			}
+		},
+		"/auth/refresh": {
+			"post": {
+				"tags": ["Autenticação"],
+				"summary": "Renovar token de autenticação (ID Token)",
+				"description": "Utiliza o refresh token para obter um novo idToken.",
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": { "$ref": "#/components/schemas/RefreshRequest" }
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Token renovado com sucesso",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"idToken": { "type": "string" },
+										"refreshToken": { "type": "string" }
+									}
+								}
 							}
 						}
 					}
@@ -327,13 +358,21 @@
 				},
 				"required": ["name", "email", "password"]
 			},
+			"RefreshRequest": {
+				"type": "object",
+				"properties": {
+					"refreshToken": { "type": "string" }
+				},
+				"required": ["refreshToken"]
+			},
 			"AuthResponse": {
 				"type": "object",
 				"properties": {
 					"uid": { "type": "string" },
 					"email": { "type": "string" },
 					"name": { "type": "string" },
-					"token": { "type": "string" }
+					"token": { "type": "string" },
+					"refreshToken": { "type": "string" }
 				}
 			},
 			"ShoppingList": {

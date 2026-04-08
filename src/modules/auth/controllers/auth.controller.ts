@@ -2,9 +2,11 @@ import type { RequestHandler } from "express";
 import type { DeleteUserUseCase } from "../usecases/delete-user.usecase";
 import type { ListUsersUseCase } from "../usecases/list-users.usecase";
 import type { LoginUserUseCase } from "../usecases/login-user.usecase";
+import type { RefreshTokenUseCase } from "../usecases/refresh-token.usecase";
 import type { RegisterUserUseCase } from "../usecases/register-user.usecase";
 import type { UpdateUserUseCase } from "../usecases/update-user.usecase";
 import { loginSchema } from "../validations/login.schema";
+import { refreshTokenSchema } from "../validations/refresh-token.schema";
 import { registerSchema } from "../validations/register.schema";
 import { updateAccountSchema } from "../validations/update-account.schema";
 
@@ -15,6 +17,7 @@ export class AuthController {
 		private readonly updateUserUseCase: UpdateUserUseCase,
 		private readonly deleteUserUseCase: DeleteUserUseCase,
 		private readonly listUsersUseCase: ListUsersUseCase,
+		private readonly refreshTokenUseCase: RefreshTokenUseCase,
 	) {}
 
 	register: RequestHandler = async (req, res, next) => {
@@ -61,6 +64,16 @@ export class AuthController {
 	listUsers: RequestHandler = async (_req, res, next) => {
 		try {
 			const result = await this.listUsersUseCase.execute();
+			res.status(200).json(result);
+		} catch (error) {
+			next(error);
+		}
+	};
+
+	refresh: RequestHandler = async (req, res, next) => {
+		try {
+			const { refreshToken } = refreshTokenSchema.parse(req.body);
+			const result = await this.refreshTokenUseCase.execute(refreshToken);
 			res.status(200).json(result);
 		} catch (error) {
 			next(error);

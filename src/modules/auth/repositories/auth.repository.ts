@@ -8,14 +8,32 @@ export class AuthRepository implements IAuthRepository {
 		password: string,
 		name: string,
 	): Promise<IAuthUser> {
-		// 1. Create user in Firebase Auth using Admin SDK
+		// 1. Check if user already exists in Firestore (integrity check)
+		const userSnapshot = await db
+			.collection("users")
+			.where("email", "==", email)
+			.get();
+
+		if (!userSnapshot.empty) {
+			const error = new Error(
+				"The email address is already in use by another account.",
+			);
+			Object.assign(error, {
+				errorInfo: {
+					code: "auth/email-already-exists",
+					message: error.message,
+				},
+				codePrefix: "auth",
+			});
+			throw error;
+		}
+
 		const userRecord = await auth.createUser({
 			email,
 			password,
 			displayName: name,
 		});
 
-		// 2. Create user document in Firestore
 		await db.collection("users").doc(userRecord.uid).set({
 			uid: userRecord.uid,
 			email: userRecord.email,
@@ -23,9 +41,6 @@ export class AuthRepository implements IAuthRepository {
 			createdAt: new Date(),
 		});
 
-		// 3. Since Admin SDK won't give us an ID token directly for a password session,
-		// we sign in via REST API to get the token, or return a custom token.
-		// For consistency with typical flows, we'll use the REST API.
 		return await this.login(email, password);
 	}
 
@@ -38,13 +53,35 @@ export class AuthRepository implements IAuthRepository {
 			returnSecureToken: true,
 		});
 
-		const { localId, idToken, displayName } = response.data;
+		const { localId, idToken, refreshToken, displayName } = response.data;
 
 		return {
 			uid: localId,
 			email,
 			name: displayName || "",
 			token: idToken,
+			refreshToken: refreshToken,
+		};
+	}
+
+	async refresh(
+		refreshToken: string,
+	): Promise<{ idToken: string; refreshToken: string }> {
+		const url = `https://securetoken.googleapis.com/v1/token?key=${firebaseConfig.apiKey}`;
+
+		const params = new URLSearchParams();
+		params.append("grant_type", "refresh_token");
+		params.append("refresh_token", refreshToken);
+
+		const response = await axios.post(url, params.toString(), {
+			headers: {
+				"Content-Type": "application/x-www-form-urlencoded",
+			},
+		});
+
+		return {
+			idToken: response.data.id_token,
+			refreshToken: response.data.refresh_token,
 		};
 	}
 
@@ -103,9 +140,9 @@ export class AuthRepository implements IAuthRepository {
 		await auth.deleteUser(uid);
 	}
 
-	async findAll(): Promise<Omit<IAuthUser, "token">[]> {
+	async findAll(): Promise<Omit<IAuthUser, "token" | "refreshToken">[]> {
 		const snapshot = await db.collection("users").get();
-		const users: Omit<IAuthUser, "token">[] = [];
+		const users: Omit<IAuthUser, "token" | "refreshToken">[] = [];
 
 		for (const doc of snapshot.docs) {
 			const data = doc.data();
