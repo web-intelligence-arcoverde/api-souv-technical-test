@@ -47,6 +47,10 @@ docker-compose up -d
 npm install     # Instalar dependências
 npm run dev     # Iniciar com auto-reload (ts-node-dev)
 ```
+### 5. Documentação da API
+A API está totalmente documentada com **Swagger**, permitindo testes interativos de todos os endpoints.
+
+- **URL Local**: [http://localhost:3001/api-docs](http://localhost:3001/api-docs)
 
 ---
 
@@ -60,16 +64,13 @@ src/
 └── modules/            # Lógica de Negócio agrupada por Funcionalidade
     ├── auth/           # Login seguro, tokens e registro
     ├── product/        # Definições de itens e processamento em massa
-    └── shopping-list/  # Gerenciamento de listas e compartilhamento
+    ├── shopping-list/  # Gerenciamento de listas e compartilhamento
 ```
 
 ---
 
-## 📖 Documentação da API
-A API está totalmente documentada com **Swagger**.
-Acesse localmente em: `http://localhost:3001/api-docs`
-
-Documentação detalhada sobre funcionalidades e arquitetura pode ser encontrada em:
+## 📖 Documentação Adicional
+Documentação detalhada sobre as regras de negócio e diagramas:
 - [Guia de Funcionalidades do Sistema](doc/features.md)
 - [Arquitetura & Diagramas](doc/diagrams/class_diagrams.md)
 
