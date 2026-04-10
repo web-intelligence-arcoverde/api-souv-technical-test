@@ -13,7 +13,7 @@ export interface CreateListDTO {
 	variant: "primary" | "secondary" | "tertiary";
 	totalItems?: number;
 	securedItems?: number;
-	items?: IProduct[];
+	items?: (Omit<IProduct, "listId"> & { listId?: string })[];
 	userId: string;
 }
 
@@ -29,7 +29,10 @@ export class CreateListUseCase {
 			variant: data.variant,
 			totalItems: data.totalItems || 0,
 			securedItems: data.securedItems || 0,
-			items: data.items || [],
+			items: (data.items || []).map((item) => ({
+				...item,
+				listId: id,
+			})) as IProduct[],
 			ownerId: data.userId,
 			lastModified: new Date(),
 		};
@@ -37,6 +40,7 @@ export class CreateListUseCase {
 		// Enfileira a criação
 		await shoppingListQueue.add(SHOPPING_LIST_JOBS.CREATE_LIST, {
 			...data,
+			items: newList.items, // Pass the items with assigned listId
 			id,
 		});
 

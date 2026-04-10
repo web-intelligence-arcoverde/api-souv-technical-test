@@ -3,6 +3,8 @@ import { auth, db, firebaseConfig } from "../../../infra/firestore";
 import logger from "../../../infra/logger/logger";
 import type { IAuthRepository, IAuthUser } from "./auth.repository.interface";
 
+export type { IAuthRepository };
+
 export class AuthRepository implements IAuthRepository {
 	async register(
 		email: string,

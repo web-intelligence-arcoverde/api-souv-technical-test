@@ -4,7 +4,7 @@
 	"description": "",
 	"main": "index.js",
 	"scripts": {
-		"dev": "ts-node-dev --respawn --transpile-only server.ts",
+		"dev": "ts-node-dev --respawn --transpile-only src/server.ts",
 		"build": "tsc",
 		"start": "node dist/server.js",
 		"lint": "npx @biomejs/biome check src",
@@ -48,7 +48,7 @@
 	"lint-staged": {
 		"*.{js,ts}": [
 			"npx @biomejs/biome check --write",
-			"npx jest --findRelatedTests --bail --forceExit --detectOpenHandles"
+			"npx jest --findRelatedTests --bail --forceExit --detectOpenHandles --passWithNoTests"
 		]
 	}
 }

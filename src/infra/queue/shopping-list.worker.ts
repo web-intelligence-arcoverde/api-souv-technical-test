@@ -31,7 +31,7 @@ export const shoppingListWorker = new Worker(
 						variant: data.variant,
 						totalItems: data.totalItems || 0,
 						securedItems: data.securedItems || 0,
-						items: data.items || [],
+						items: (data.items || []) as IProduct[],
 						ownerId: data.userId,
 						lastModified: new Date(),
 					});
