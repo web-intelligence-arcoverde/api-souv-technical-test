@@ -28,13 +28,27 @@ API de Lista de Compras moderna e robusta construída com **Node.js**, **Express
 - Projeto Firebase (JSON do Admin SDK)
 
 ### 2. Configuração do Ambiente
-Crie um arquivo `.env` no diretório raiz:
+Crie um arquivo `.env` no diretório raiz com as seguintes variáveis (obrigatórias para o Firebase Admin SDK):
+
 ```env
-NODE_ENV=development
+# Servidor
 PORT=3001
+NODE_ENV=development
+
+# Cache & Fila
 REDIS_URL=redis://localhost:6379
-FIREBASE_API_KEY=sua_chave_api_aqui
+
+# Firebase Admin SDK (Extraídas do seu JSON de Service Account)
+FIREBASE_PROJECT_ID=seu-projeto-id
+FIREBASE_CLIENT_EMAIL=firebase-adminsdk@...
+FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nSUA_CHAVE_AQUI\n-----END PRIVATE KEY-----\n"
+
+# Firebase Client (Utilizada para autenticação via proxy)
+FIREBASE_API_KEY=sua_chave_api_publica_aqui
 ```
+
+> [!IMPORTANT]
+> A `FIREBASE_PRIVATE_KEY` deve conter as quebras de linha representadas por `\n` e estar entre aspas para ser processada corretamente pelo Node.js.
 
 ### 3. Executando a Infraestrutura
 Inicie o container do Redis:
