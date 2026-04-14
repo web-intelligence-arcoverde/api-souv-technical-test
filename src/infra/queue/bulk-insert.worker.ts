@@ -1,5 +1,7 @@
 import { type Job, Worker } from "bullmq";
+import * as admin from "firebase-admin";
 import type { IProduct } from "../../modules/product/entities/product";
+import { invalidateCacheByPattern } from "../cache/redis.helper";
 import { db } from "../firestore";
 import logger from "../logger/logger";
 import { queueRedisConnection } from "./queue.config";
@@ -38,6 +40,21 @@ export const bulkInsertWorker = new Worker(
 			// Executa a transação para este chunk
 			await batch.commit();
 		}
+
+		// Atualiza o contador de itens totais na lista pai
+		await db
+			.collection("lists")
+			.doc(listId)
+			.update({
+				// biome-ignore lint/suspicious/noExplicitAny: Atomic increment
+				totalItems: admin.firestore.FieldValue.increment(items.length) as any,
+				lastModified: new Date(),
+			});
+
+		// Invalida cache de produtos e detalhes da lista
+		await invalidateCacheByPattern(`products:page:*:list:${listId}`);
+		await invalidateCacheByPattern(`list:detail:${listId}:*`);
+		await invalidateCacheByPattern(`list:shared:${listId}`);
 
 		logger.info(`[Queue] Job ${job.id} completed successfully!`);
 	},
