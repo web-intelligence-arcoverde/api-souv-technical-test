@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import { setupAuthControllerTest } from "../../test-helpers/auth.controller.setup";
+import { setupAuthControllerTest } from "../helpers/auth.controller.setup";
 
 describe("AuthController - Login", () => {
 	let setup: ReturnType<typeof setupAuthControllerTest>;
