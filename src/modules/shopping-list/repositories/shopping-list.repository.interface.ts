@@ -1,9 +1,21 @@
 import type { IShoppingList } from "../entities/shopping-list";
 
+export interface ListListsFilters {
+	ownerId?: string;
+	category?: string;
+	shared?: boolean;
+	variant?: string;
+}
+
 export interface IShoppingListRepository {
 	create(data: IShoppingList): Promise<IShoppingList>;
 	findAllByUserId(
 		userId: string,
+		limit?: number,
+		offset?: number,
+	): Promise<IShoppingList[]>;
+	findAll(
+		filters: ListListsFilters,
 		limit?: number,
 		offset?: number,
 	): Promise<IShoppingList[]>;

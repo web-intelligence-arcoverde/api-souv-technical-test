@@ -18,7 +18,7 @@ privateRouter.get(
 	"/",
 	cacheMiddleware(
 		(req) =>
-			`lists:user:${req.user?.uid}:page:${req.query.page || 1}:limit:${req.query.limit || 10}`,
+			`lists:user:${req.user?.uid}:page:${req.query.page || 1}:limit:${req.query.limit || 10}:cat:${req.query.category || "all"}:sh:${req.query.shared || "all"}:var:${req.query.variant || "all"}`,
 		600,
 	),
 	listController.list,

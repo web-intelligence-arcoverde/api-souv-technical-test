@@ -4,7 +4,7 @@ import logger from "../../../infra/logger/logger";
 import type { CreateListUseCase } from "../usecases/create-list.usecase";
 import type { DeleteListUseCase } from "../usecases/delete-list.usecase";
 import type { GetListUseCase } from "../usecases/get-list.usecase";
-import type { ListListsUseCase } from "../usecases/list-lists.usecase";
+import type { ListListsFilteredUseCase } from "../usecases/list-lists-filtered.usecase";
 import type { UpdateListUseCase } from "../usecases/update-list.usecase";
 import { createListSchema } from "../validations/create-list.schema";
 import { updateListSchema } from "../validations/update-list.schema";
@@ -19,7 +19,7 @@ interface AuthenticatedRequest extends Request {
 export class ShoppingListController {
 	constructor(
 		private readonly createListUseCase: CreateListUseCase,
-		private readonly listListsUseCase: ListListsUseCase,
+		private readonly listListsUseCase: ListListsFilteredUseCase,
 		private readonly getListUseCase: GetListUseCase,
 		private readonly updateListUseCase: UpdateListUseCase,
 		private readonly deleteListUseCase: DeleteListUseCase,
@@ -43,8 +43,23 @@ export class ShoppingListController {
 			const userId = (req as unknown as AuthenticatedRequest).user.uid;
 			const page = Number(req.query.page) || 1;
 			const limit = Number(req.query.limit) || 10;
+			const category = req.query.category as string;
+			const shared =
+				req.query.shared === "true"
+					? true
+					: req.query.shared === "false"
+						? false
+						: undefined;
+			const variant = req.query.variant as string;
 
-			const result = await this.listListsUseCase.execute(userId, page, limit);
+			const result = await this.listListsUseCase.execute({
+				userId,
+				page,
+				limit,
+				category,
+				shared,
+				variant,
+			});
 			res.status(200).json(result);
 		} catch (error) {
 			next(error);

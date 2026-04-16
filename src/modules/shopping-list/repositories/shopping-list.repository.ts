@@ -1,6 +1,10 @@
+import type * as admin from "firebase-admin";
 import { db } from "../../../infra/firestore";
 import type { IShoppingList } from "../entities/shopping-list";
-import type { IShoppingListRepository } from "./shopping-list.repository.interface";
+import type {
+	IShoppingListRepository,
+	ListListsFilters,
+} from "./shopping-list.repository.interface";
 
 export class ShoppingListRepository implements IShoppingListRepository {
 	private readonly collectionName = "shopping-lists";
@@ -26,9 +30,31 @@ export class ShoppingListRepository implements IShoppingListRepository {
 		limit?: number,
 		offset?: number,
 	): Promise<IShoppingList[]> {
-		let query = db
-			.collection(this.collectionName)
-			.where("ownerId", "==", userId);
+		return this.findAll({ ownerId: userId }, limit, offset);
+	}
+
+	async findAll(
+		filters: ListListsFilters,
+		limit?: number,
+		offset?: number,
+	): Promise<IShoppingList[]> {
+		let query: admin.firestore.Query = db.collection(this.collectionName);
+
+		if (filters.ownerId) {
+			query = query.where("ownerId", "==", filters.ownerId);
+		}
+
+		if (filters.category) {
+			query = query.where("category", "==", filters.category);
+		}
+
+		if (filters.shared !== undefined) {
+			query = query.where("shared", "==", filters.shared);
+		}
+
+		if (filters.variant) {
+			query = query.where("variant", "==", filters.variant);
+		}
 
 		if (limit !== undefined) {
 			query = query.limit(limit);
@@ -40,11 +66,13 @@ export class ShoppingListRepository implements IShoppingListRepository {
 
 		const querySnapshot = await query.get();
 
-		const fetchPromises = querySnapshot.docs.map(async (doc) => {
-			const listData = doc.data() as IShoppingList;
-			const items = await this.getItems(doc.id);
-			return { id: doc.id, ...listData, items } as IShoppingList;
-		});
+		const fetchPromises = querySnapshot.docs.map(
+			async (doc: admin.firestore.QueryDocumentSnapshot) => {
+				const listData = doc.data() as IShoppingList;
+				const items = await this.getItems(doc.id);
+				return { id: doc.id, ...listData, items } as IShoppingList;
+			},
+		);
 
 		return Promise.all(fetchPromises);
 	}
