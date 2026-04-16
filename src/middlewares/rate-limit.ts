@@ -14,6 +14,11 @@ const rateLimiterMiddleware = (
 	res: Response,
 	next: NextFunction,
 ) => {
+	// Bypass rate limiter for load testing if secret header is present
+	if (req.headers["x-load-test-bypass"] === "true") {
+		return next();
+	}
+
 	rateLimiter
 		.consume(req.ip ?? "unknown")
 		.then(() => {

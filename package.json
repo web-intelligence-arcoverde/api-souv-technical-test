@@ -11,6 +11,7 @@
 		"format": "npx @biomejs/biome format --write src",
 		"test": "jest",
 		"test:load": "npx ts-node src/modules/auth/__tests__/load/auth.load.test.ts",
+		"test:load:list": "npx ts-node src/modules/shopping-list/__tests__/load/shopping-list.load.test.ts",
 		"prepare": "husky"
 	},
 	"keywords": [],
