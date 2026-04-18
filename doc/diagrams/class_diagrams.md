@@ -18,6 +18,8 @@ classDiagram
         +string title
         +string ownerId
         +string category
+        +string variant
+        +boolean shared
         +Date lastModified
     }
 
@@ -41,9 +43,16 @@ classDiagram
         +execute(data: any)
     }
 
+    class ListListsFilteredUseCase {
+        +repository: IShoppingListRepository
+        +execute(filters: any)
+    }
+
     IShoppingListRepository <|.. ShoppingListRepository : implementa
     CreateListUseCase --> IShoppingListRepository : usa
+    ListListsFilteredUseCase --> IShoppingListRepository : usa
     CreateListUseCase ..> ShoppingList : gerencia
+    ListListsFilteredUseCase ..> ShoppingList : retorna
 ```
 
 ## 📦 Relação de Produtos e Filas (Queue)

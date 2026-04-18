@@ -12,11 +12,19 @@ export class ToggleChangeProductCheckedUseCase implements IUseCase {
 		private shoppingListRepository: IShoppingListRepository,
 	) {}
 
-	async execute(data: { id: string; listId: string; checked: boolean }) {
-		const { id, listId, checked } = data;
+	async execute(data: { id: string; checked: boolean }) {
+		const { id, checked } = data;
+
+		const product = await this.productRepository.findById(id);
+
+		if (!product) {
+			throw new Error("Product not found");
+		}
+
+		const listId = product.listId;
+
 		const updated = await this.productRepository.toggleProductChecked(
 			id,
-			listId,
 			checked,
 		);
 

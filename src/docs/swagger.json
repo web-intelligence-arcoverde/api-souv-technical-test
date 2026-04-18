@@ -2,7 +2,7 @@
 	"openapi": "3.0.0",
 	"info": {
 		"title": "API de Lista de Compras Souv",
-		"version": "2.3.0",
+		"version": "2.4.0",
 		"description": "API para gerenciamento de listas de compras e produtos, com suporte a múltiplos usuários via Firebase Admin SDK e renovação de tokens (Refresh Token)."
 	},
 	"servers": [
@@ -193,7 +193,36 @@
 			"get": {
 				"tags": ["Listas"],
 				"summary": "Listar listas de compras do usuário",
-				"parameters": [],
+				"parameters": [
+					{
+						"name": "page",
+						"in": "query",
+						"schema": { "type": "integer", "default": 1 }
+					},
+					{
+						"name": "limit",
+						"in": "query",
+						"schema": { "type": "integer", "default": 10 }
+					},
+					{
+						"name": "category",
+						"in": "query",
+						"schema": { "type": "string" }
+					},
+					{
+						"name": "shared",
+						"in": "query",
+						"schema": { "type": "boolean" }
+					},
+					{
+						"name": "variant",
+						"in": "query",
+						"schema": {
+							"type": "string",
+							"enum": ["primary", "secondary", "tertiary"]
+						}
+					}
+				],
 				"security": [{ "BearerAuth": [] }],
 				"responses": {
 					"200": {
@@ -201,8 +230,16 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"type": "array",
-									"items": { "$ref": "#/components/schemas/ShoppingList" }
+									"type": "object",
+									"properties": {
+										"page": { "type": "integer" },
+										"limit": { "type": "integer" },
+										"total": { "type": "integer" },
+										"data": {
+											"type": "array",
+											"items": { "$ref": "#/components/schemas/ShoppingList" }
+										}
+									}
 								}
 							}
 						}
@@ -297,41 +334,6 @@
 				"security": [{ "BearerAuth": [] }],
 				"responses": {
 					"200": { "description": "Lista deletada com sucesso" },
-					"404": { "description": "Lista não encontrada" }
-				}
-			}
-		},
-		"/shopping-list/{id}/product": {
-			"post": {
-				"tags": ["Listas"],
-				"summary": "Adicionar produto a uma lista específica",
-				"parameters": [
-					{
-						"name": "id",
-						"in": "path",
-						"required": true,
-						"schema": { "type": "string" }
-					}
-				],
-				"requestBody": {
-					"required": true,
-					"content": {
-						"application/json": {
-							"schema": { "$ref": "#/components/schemas/AddProductRequest" }
-						}
-					}
-				},
-				"security": [{ "BearerAuth": [] }],
-				"responses": {
-					"201": {
-						"description": "Produto adicionado",
-						"content": {
-							"application/json": {
-								"schema": { "$ref": "#/components/schemas/Product" }
-							}
-						}
-					},
-					"403": { "description": "Sem permissão para alterar esta lista" },
 					"404": { "description": "Lista não encontrada" }
 				}
 			}
@@ -528,6 +530,7 @@
 						"items": { "$ref": "#/components/schemas/Product" }
 					},
 					"ownerId": { "type": "string" },
+					"shared": { "type": "boolean", "default": false },
 					"lastModified": { "type": "string", "format": "date-time" },
 					"createdAt": { "type": "string", "format": "date-time" }
 				}
@@ -547,7 +550,8 @@
 					"items": {
 						"type": "array",
 						"items": { "$ref": "#/components/schemas/Product" }
-					}
+					},
+					"shared": { "type": "boolean", "default": false }
 				},
 				"required": ["title", "category", "variant"]
 			},
@@ -566,7 +570,8 @@
 					"items": {
 						"type": "array",
 						"items": { "$ref": "#/components/schemas/Product" }
-					}
+					},
+					"shared": { "type": "boolean" }
 				}
 			},
 			"Product": {
@@ -601,26 +606,6 @@
 					"marketName",
 					"price",
 					"category",
-					"quantity",
-					"unit"
-				]
-			},
-			"AddProductRequest": {
-				"type": "object",
-				"properties": {
-					"category": { "type": "string" },
-					"name": { "type": "string" },
-					"marketName": { "type": "string" },
-					"price": { "type": "number" },
-					"quantity": { "type": "integer" },
-					"unit": { "type": "string" },
-					"checked": { "type": "boolean" }
-				},
-				"required": [
-					"category",
-					"name",
-					"marketName",
-					"price",
 					"quantity",
 					"unit"
 				]

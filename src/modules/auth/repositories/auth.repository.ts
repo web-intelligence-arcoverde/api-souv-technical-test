@@ -122,7 +122,11 @@ export class AuthRepository implements IAuthRepository {
 			.get();
 
 		for (const listDoc of listsSnapshot.docs) {
-			const itemsSnapshot = await listDoc.ref.collection("items").get();
+			const itemsSnapshot = await db
+				.collection("products")
+				.where("listId", "==", listDoc.id)
+				.get();
+
 			for (const itemDoc of itemsSnapshot.docs) {
 				await itemDoc.ref.delete();
 			}

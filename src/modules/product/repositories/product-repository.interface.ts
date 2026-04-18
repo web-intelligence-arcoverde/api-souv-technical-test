@@ -3,8 +3,9 @@ import type { IProduct } from "../entities/product";
 
 export interface IProductRepository {
 	findAll(page: number, limit: number, listId: string): Promise<IPagination>;
-	findById(id: string, listId: string): Promise<IProduct | null>;
+	findById(id: string): Promise<IProduct | null>;
 	create(data: IProduct): Promise<IProduct>;
 
-	delete(id: string, listId: string): Promise<void>;
+	delete(id: string): Promise<void>;
+	toggleProductChecked(id: string, checked: boolean): Promise<void>;
 }

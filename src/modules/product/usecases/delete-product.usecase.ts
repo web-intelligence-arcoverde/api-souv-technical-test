@@ -11,14 +11,16 @@ export class DeleteProductUseCase implements IUseCase {
 		private shoppingListRepository: IShoppingListRepository,
 	) {}
 
-	async execute(data: { id: string; listId: string }) {
-		const { id, listId } = data;
+	async execute(data: { id: string }) {
+		const { id } = data;
 
-		// Busca o produto antes de deletar para saber se estava marcado
-		const product = await this.productRepository.findById(id, listId);
+		// Busca o produto antes de deletar para saber se estava marcado e qual a lista pai
+		const product = await this.productRepository.findById(id);
 		if (!product) return;
 
-		const result = await this.productRepository.delete(id, listId);
+		const listId = product.listId;
+
+		const result = await this.productRepository.delete(id);
 
 		// Atualiza contadores na lista pai
 		await this.shoppingListRepository.update(listId, {

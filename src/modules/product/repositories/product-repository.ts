@@ -4,8 +4,10 @@ import type { IProduct } from "../entities/product";
 import type { IProductRepository } from "./product-repository.interface";
 
 export class ProductRepository implements IProductRepository {
-	private getCollection(listId: string) {
-		return db.collection("shopping-lists").doc(listId).collection("items");
+	private readonly collectionName = "products";
+
+	private getCollection() {
+		return db.collection(this.collectionName);
 	}
 
 	async findAll(
@@ -13,7 +15,10 @@ export class ProductRepository implements IProductRepository {
 		limit: number,
 		listId: string,
 	): Promise<IPagination> {
-		const querySnapshot = await this.getCollection(listId).get();
+		const querySnapshot = await this.getCollection()
+			.where("listId", "==", listId)
+			.get();
+
 		const allItems: IProduct[] = [];
 
 		for (const doc of querySnapshot.docs) {
@@ -34,9 +39,10 @@ export class ProductRepository implements IProductRepository {
 	}
 
 	async create(data: IProduct): Promise<IProduct> {
-		const itemRef = data.id
-			? this.getCollection(data.listId).doc(String(data.id))
-			: this.getCollection(data.listId).doc();
+		const itemRef =
+			data.id && typeof data.id === "string"
+				? this.getCollection().doc(data.id)
+				: this.getCollection().doc();
 
 		const id = itemRef.id;
 
@@ -48,23 +54,19 @@ export class ProductRepository implements IProductRepository {
 		return { ...data, id };
 	}
 
-	async findById(id: string, listId: string): Promise<IProduct | null> {
-		const docSnap = await this.getCollection(listId).doc(id).get();
+	async findById(id: string): Promise<IProduct | null> {
+		const docSnap = await this.getCollection().doc(id).get();
 		if (docSnap.exists) {
 			return { id: docSnap.id, ...docSnap.data() } as IProduct;
 		}
 		return null;
 	}
 
-	async toggleProductChecked(
-		id: string,
-		listId: string,
-		checked: boolean,
-	): Promise<void> {
-		await this.getCollection(listId).doc(id).update({ checked });
+	async toggleProductChecked(id: string, checked: boolean): Promise<void> {
+		await this.getCollection().doc(id).update({ checked });
 	}
 
-	async delete(id: string, listId: string): Promise<void> {
-		await this.getCollection(listId).doc(id).delete();
+	async delete(id: string): Promise<void> {
+		await this.getCollection().doc(id).delete();
 	}
 }

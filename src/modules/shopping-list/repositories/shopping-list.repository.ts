@@ -96,9 +96,8 @@ export class ShoppingListRepository implements IShoppingListRepository {
 	private async getItems(listId: string) {
 		const trimmedId = listId.trim();
 		const itemsSnapshot = await db
-			.collection(this.collectionName)
-			.doc(trimmedId)
-			.collection("items")
+			.collection("products")
+			.where("listId", "==", trimmedId)
 			.get();
 
 		return itemsSnapshot.docs.map((doc) => ({
@@ -112,17 +111,20 @@ export class ShoppingListRepository implements IShoppingListRepository {
 	}
 
 	async delete(id: string): Promise<void> {
-		const listRef = db.collection(this.collectionName).doc(id);
-		const itemsSnapshot = await listRef.collection("items").get();
+		const itemsSnapshot = await db
+			.collection("products")
+			.where("listId", "==", id)
+			.get();
 
 		const batch = db.batch();
 
-		// Deletar todos os itens da subcoleção
+		// Deletar todos os itens da coleção products vinculados a esta lista
 		for (const itemDoc of itemsSnapshot.docs) {
 			batch.delete(itemDoc.ref);
 		}
 
 		// Deletar a lista principal
+		const listRef = db.collection(this.collectionName).doc(id);
 		batch.delete(listRef);
 
 		await batch.commit();

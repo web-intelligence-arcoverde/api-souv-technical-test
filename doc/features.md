@@ -22,13 +22,16 @@ Gerencia itens individuais que podem ser adicionados às listas de compras.
 ## 🛒 Módulo de Lista de Compras
 Funcionalidade principal para compras colaborativas.
 
-- **POST /shopping-list**: Cria uma nova lista de compras.
-- **GET /shopping-list**: Recupera todas as listas pertencentes ao usuário autenticado.
+- **POST /shopping-list**: Cria uma nova lista de compras. Agora suporta os campos `shared` (boolean), `category` e `variant`.
+- **GET /shopping-list**: Recupera as listas do usuário. Suporta filtros via query params:
+    - `page` & `limit`: Paginação.
+    - `category`: Filtrar por categoria.
+    - `shared`: Filtrar por status de compartilhamento (`true`/`false`).
+    - `variant`: Filtrar por variante visual (`primary`, `secondary`, `tertiary`).
 - **GET /shopping-list/:id**: Busca detalhes de uma lista específica.
-- **PATCH /shopping-list/:id**: Atualiza metadados da lista (título, categoria, descrição).
-- **DELETE /shopping-list/:id**: Remoção permanente de uma lista e seus produtos associados.
-- **POST /shopping-list/:id/product**: Adição assíncrona de produtos a uma lista via workers de segundo plano.
-- **GET /shopping-list/shared/:id**: **Acesso Público** a uma lista de compras via link compartilhado (não requer login).
+- **PATCH /shopping-list/:id**: Atualiza metadados da lista (título, categoria, descrição, shared, variant).
+- **DELETE /shopping-list/:id**: Remoção permanente de uma lista.
+- **GET /shopping-list/shared/:id**: **Acesso Público** a uma lista compartilhada (não requer login).
 
 ---
 

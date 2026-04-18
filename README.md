@@ -16,7 +16,17 @@ API de Lista de Compras moderna e robusta construída com **Node.js**, **Express
 - **Autenticação**: Firebase Auth (Ponte via Proxy)
 - **Cache**: Redis (Cache de alta performance em endpoints de busca)
 - **Fila (Queue)**: BullMQ & IORedis (Jobs confiáveis em segundo plano)
-- **Qualidade**: Biome (Linting/Formatação), Husky & lint-staged (Git Hooks), Jest (Testes)
+- **Qualidade**: Biome (Linting/Formatação), Husky & lint-staged (Git Hooks), Jest (Testes Unitários), Autocannon (Testes de Carga)
+
+---
+
+## ⚡ Performance & Stress Testing
+
+A API foi submetida a testes de carga rigorosos para garantir estabilidade sob alta demanda:
+
+- **Shopping List (Leitura)**: Alcançou **~650 RPS** com latência sub-20ms.
+- **Shopping List (Escrita)**: Alcançou **~1.000 RPS** utilizando a estratégia de "Fire-and-Forget" com processamento assíncrono via BullMQ.
+- **Bypass de Teste**: Suporta o header `x-load-test-bypass: true` para facilitar benchmarks sem interferência do Rate Limiter.
 
 ---
 

@@ -11,7 +11,6 @@ export class DeleteProductController implements IController {
 		try {
 			const validated = deleteProductValidation.parse({
 				id: req.params.id,
-				listId: req.query.listId,
 			});
 
 			const result = await this.useCase.execute(validated);
